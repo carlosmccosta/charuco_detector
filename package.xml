@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="2">
+	<name>charuco_detector</name>
+	<version>1.0.0</version>
+	<description>Detector of ChAruCo patterns</description>
+	<author email="carloscosta.cmcc@gmail.com">Carlos Miguel Correia da Costa</author>
+	<maintainer email="carloscosta.cmcc@gmail.com">Carlos Miguel Correia da Costa</maintainer>
+	<license>BSD</license>
+
+	<buildtool_depend>catkin</buildtool_depend>
+
+	<depend>cv_bridge</depend>
+	<depend>eigen</depend>
+	<depend>geometry_msgs</depend>
+	<depend>image_transport</depend>
+	<depend>opencv3</depend>
+	<depend>rosconsole</depend>
+	<depend>roscpp</depend>
+	<depend>rostime</depend>
+	<depend>sensor_msgs</depend>
+	<depend>tf2</depend>
+	<depend>tf2_ros</depend>
+</package>
