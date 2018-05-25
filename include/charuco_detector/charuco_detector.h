@@ -28,6 +28,8 @@
 #include <cv_bridge/cv_bridge.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TransformStamped.h>
+#include <sensor_msgs/Image.h>
+#include <sensor_msgs/image_encodings.h>
 #include <image_transport/image_transport.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </includes>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -42,8 +44,12 @@ namespace charuco_detector {
 
 		virtual void setupConfigurationFromParameterServer(ros::NodeHandlePtr &_node_handle, ros::NodeHandlePtr &_private_node_handle);
 		virtual void startDetection();
-		void imageCallback(const sensor_msgs::ImageConstPtr &_msg);
 		void cameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr &_msg);
+		void imageCallback(const sensor_msgs::ImageConstPtr &_msg);
+		void applyDynamicRange(cv::Mat& image_in_out_);
+		virtual void filterImage(cv::Mat& image_in_out_);
+		virtual void filterImageMono8(cv::Mat& image_in_out_);
+		virtual void applyThreshold(cv::Mat& image_in_out_);
 		virtual bool detectChArUcoBoard(const cv::Mat &_image_grayscale, const cv::Mat &_camera_intrinsics, const cv::Mat &_camera_distortion_coefficients,
 										cv::Vec3d &_camera_rotation_out, cv::Vec3d &_camera_translation_out,
 										cv::InputOutputArray _image_with_detection_results, bool _show_rejected_markers);
@@ -61,6 +67,12 @@ namespace charuco_detector {
 		int number_of_squares_in_y_;
 		int dictionary_id_;
 
+		bool use_dynamic_range_;
+		bool use_adaptive_threshold_;
+		bool use_median_blur_;
+		bool use_bilateral_filter_;
+
+		std::string sensor_frame_override_;
 		std::string charuco_tf_frame_;
 		std::string image_topic_;
 		std::string camera_info_topic_;

@@ -47,6 +47,12 @@ namespace charuco_detector {
 		private_node_handle_->param("charuco/numberOfSquaresInY", number_of_squares_in_y_, 14);
 		private_node_handle_->param("charuco/dictionaryId", dictionary_id_, 10);
 
+		private_node_handle_->param("use_dynamic_range", use_dynamic_range_, false);
+		private_node_handle_->param("use_adaptive_threshold", use_adaptive_threshold_, false);
+		private_node_handle_->param("use_median_blur", use_median_blur_, false);
+		private_node_handle_->param("use_bilateral_filter", use_bilateral_filter_, false);
+
+		private_node_handle_->param("sensor_frame_override", sensor_frame_override_, std::string(""));
 		private_node_handle_->param("charuco_tf_frame", charuco_tf_frame_, std::string("charuco"));
 		private_node_handle_->param("image_topic", image_topic_, std::string("image_raw"));
 		private_node_handle_->param("camera_info_topic", camera_info_topic_, std::string("camera_info"));
@@ -76,41 +82,6 @@ namespace charuco_detector {
 	}
 
 
-	void ChArUcoDetector::imageCallback(const sensor_msgs::ImageConstPtr &_msg) {
-		if (camera_info_) {
-			try {
-				cv::Mat image_grayscale = cv_bridge::toCvCopy(_msg, sensor_msgs::image_encodings::MONO8)->image;
-
-				cv::Vec3d camera_rotation, camera_translation;
-				cv::Mat image_results;
-
-				if (detectChArUcoBoard(image_grayscale, camera_intrinsics_matrix, camera_distortion_coefficients_matrix, camera_rotation, camera_translation, image_results, true)) {
-					geometry_msgs::PoseStamped charuco_pose;
-					charuco_pose.header = _msg->header;
-					fillPose(camera_rotation, camera_translation, charuco_pose);
-					charuco_pose_publisher_.publish(charuco_pose);
-
-					geometry_msgs::TransformStamped static_transformStamped;
-					static_transformStamped.header = _msg->header;
-					static_transformStamped.child_frame_id = charuco_tf_frame_;
-					static_transformStamped.transform.translation.x = charuco_pose.pose.position.x;
-					static_transformStamped.transform.translation.y = charuco_pose.pose.position.y;
-					static_transformStamped.transform.translation.z = charuco_pose.pose.position.z;
-					static_transformStamped.transform.rotation = charuco_pose.pose.orientation;
-					static_tf_broadcaster_.sendTransform(static_transformStamped);
-
-					sensor_msgs::ImagePtr image_results_msg = cv_bridge::CvImage(std_msgs::Header(), "rgb8", image_results).toImageMsg();
-					image_results_publisher_.publish(image_results_msg);
-				}
-			} catch (...) {
-				ROS_WARN("Caught exception when analyzing image");
-			}
-		} else {
-			ROS_WARN("Discarded image because a valid CameraInfo was not received yet");
-		}
-	}
-
-
 	void ChArUcoDetector::cameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr &_msg) {
 		bool valid_camera_info = false;
 		for (size_t i = 0; i < _msg->K.size(); ++i) {
@@ -137,6 +108,103 @@ namespace charuco_detector {
 		} else {
 			ROS_WARN("Received invalid camera intrinsics (K all zeros)");
 		}
+	}
+
+
+	void ChArUcoDetector::imageCallback(const sensor_msgs::ImageConstPtr &_msg) {
+		if (camera_info_) {
+			cv::Mat image_grayscale;
+			bool dynamic_range_applied = false;
+
+			if ((_msg->encoding == sensor_msgs::image_encodings::MONO16 || use_dynamic_range_)) {
+				try {
+					image_grayscale = cv_bridge::toCvCopy(_msg)->image;
+					if (use_median_blur_) filterImage(image_grayscale);
+					applyDynamicRange(image_grayscale);
+					dynamic_range_applied = true;
+				} catch (...) {}
+			}
+
+			if (!dynamic_range_applied) {
+				try {
+					image_grayscale = cv_bridge::toCvCopy(_msg, sensor_msgs::image_encodings::MONO8)->image;
+				} catch (cv_bridge::Exception& e) {
+					try {
+						cv_bridge::CvImageConstPtr image = cv_bridge::toCvShare(_msg);
+						cv_bridge::CvtColorForDisplayOptions options;
+						options.do_dynamic_scaling = true;
+						options.colormap = -1;
+						image_grayscale = cv_bridge::cvtColorForDisplay(image, sensor_msgs::image_encodings::MONO8, options)->image;
+					} catch (cv_bridge::Exception& e) {
+						ROS_WARN_STREAM("Caught exception when analyzing image: " << e.what());
+						return;
+					}
+				}
+			}
+
+			if (!dynamic_range_applied && use_median_blur_) filterImage(image_grayscale);
+			if (use_bilateral_filter_) filterImageMono8(image_grayscale);
+			if (use_adaptive_threshold_) applyThreshold(image_grayscale);
+
+			cv::Vec3d camera_rotation, camera_translation;
+			cv::Mat image_results;
+
+			if (detectChArUcoBoard(image_grayscale, camera_intrinsics_matrix, camera_distortion_coefficients_matrix, camera_rotation, camera_translation, image_results, true)) {
+				geometry_msgs::PoseStamped charuco_pose;
+				charuco_pose.header = _msg->header;
+				fillPose(camera_rotation, camera_translation, charuco_pose);
+				charuco_pose_publisher_.publish(charuco_pose);
+
+				geometry_msgs::TransformStamped static_transformStamped;
+				static_transformStamped.header = _msg->header;
+				if (!sensor_frame_override_.empty())
+					static_transformStamped.header.frame_id = sensor_frame_override_;
+				static_transformStamped.child_frame_id = charuco_tf_frame_;
+				static_transformStamped.transform.translation.x = charuco_pose.pose.position.x;
+				static_transformStamped.transform.translation.y = charuco_pose.pose.position.y;
+				static_transformStamped.transform.translation.z = charuco_pose.pose.position.z;
+				static_transformStamped.transform.rotation = charuco_pose.pose.orientation;
+				static_tf_broadcaster_.sendTransform(static_transformStamped);
+
+				sensor_msgs::ImagePtr image_results_msg = cv_bridge::CvImage(std_msgs::Header(), "rgb8", image_results).toImageMsg();
+				image_results_publisher_.publish(image_results_msg);
+			} else {
+				sensor_msgs::ImagePtr image_filtered_msg = cv_bridge::CvImage(std_msgs::Header(), "mono8", image_grayscale).toImageMsg();
+				image_results_publisher_.publish(image_filtered_msg);
+			}
+		} else {
+			ROS_WARN("Discarded image because a valid CameraInfo was not received yet");
+		}
+	}
+
+
+	void ChArUcoDetector::applyDynamicRange(cv::Mat& image_in_out_) {
+		double min = 0;
+		double max = 65535;
+		cv::Mat temp;
+		cv::minMaxLoc(image_in_out_, &min, &max);
+		cv::Mat(image_in_out_ - min).convertTo(image_in_out_, CV_8UC1, 255 / (max - min));
+	}
+
+
+	void ChArUcoDetector::filterImage(cv::Mat& image_in_out_) {
+		cv::Mat temp;
+		cv::medianBlur(image_in_out_, temp, 3);
+		image_in_out_ = temp;
+	}
+
+
+	void ChArUcoDetector::filterImageMono8(cv::Mat& image_in_out_) {
+		cv::Mat temp;
+		cv::bilateralFilter(image_in_out_, temp, 5, 100, 100, cv::BORDER_DEFAULT);
+		image_in_out_ = temp;
+	}
+
+
+	void ChArUcoDetector::applyThreshold(cv::Mat& image_in_out_) {
+			cv::Mat temp;
+			cv::adaptiveThreshold(image_in_out_, temp, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, 65, 0);
+			image_in_out_ = temp;
 	}
 
 
