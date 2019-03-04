@@ -1,0 +1,22 @@
+https://docs.opencv.org/master/df/d4a/tutorial_charuco_detection.html
+
+cd D:\Git\OpenCV\opencv\build\install\samples\aruco\
+
+A4 5x7 (200x280 mm)
+aruco-example-create_board_charuco.exe chboard-a4.png -w=5 -h=7 -sl=200 -ml=120 -d=10
+aruco-example-detect_board_charuco.exe -w=5 -h=7 -sl=0.04 -ml=0.024 -d=10
+
+A3 7x10 (280x400 mm)
+aruco-example-create_board_charuco.exe chboard-a3.png -w=7 -h=10 -sl=200 -ml=120 -d=10
+aruco-example-detect_board_charuco.exe -w=7 -h=10 -sl=0.04 -ml=0.024 -d=10
+
+A3 10x14 (280x392 mm)
+aruco-example-create_board_charuco.exe chboard-a3.png -w=10 -h=14 -sl=200 -ml=120 -d=10
+aruco-example-detect_board_charuco.exe -w=10 -h=14 -sl=0.028 -ml=0.0168 -d=10
+
+
+A3 margin:
+	Left: 0.2
+	Right: 0.12
+	Top: 0.35
+	Bottom: 0.22
