@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+	<arg name="config_file" default="$(find charuco_detector)/yaml/charuco.yaml" />
+
+	<arg name="squares_sides_size_in_meters" default="0.0280" />
+	<arg name="markers_sides_size_in_meters" default="0.0168" />
+	<arg name="number_of_bits_for_markers_sides" default="6" />
+	<arg name="number_of_markers" default="70" />
+	<arg name="number_of_squares_in_x" default="10" />
+	<arg name="number_of_squares_in_y" default="14" />
+	<arg name="dictionary_id" default="10" />
+
+	<arg name="sensor_frame_override" default="" />
+	<arg name="charuco_tf_frame" default="charuco" />
+	<arg name="image_topic" default="image_raw" />
+	<arg name="camera_info_topic" default="camera_info" />
+	<arg name="image_analysis_publish_topic" default="image_raw_charuco_detection" />
+	<arg name="charuco_pose_publish_topic" default="image_raw_charuco_pose" />
+
+	<arg name="use_dynamic_range" default="false" />
+	<arg name="use_adaptive_threshold" default="false" />
+	<arg name="use_median_blur" default="false" />
+	<arg name="use_bilateral_filter" default="false" />
+
+	<node pkg="charuco_detector" type="charuco_detector_node" name="$(anon charuco_detector)" clear_params="true" output="screen">
+		<rosparam command="load" file="$(arg config_file)" ns="charuco" subst_value="true" />
+
+		<param name="charuco/squaresSidesSizeM" type="double" value="$(arg squares_sides_size_in_meters)" />
+		<param name="charuco/markersSidesSizeM" type="double" value="$(arg markers_sides_size_in_meters)" />
+		<param name="charuco/numberOfBitsForMarkersSides" type="int" value="$(arg number_of_bits_for_markers_sides)" />
+		<param name="charuco/numberOfMarkers" type="int" value="$(arg number_of_markers)" />
+		<param name="charuco/numberOfSquaresInX" type="int" value="$(arg number_of_squares_in_x)" />
+		<param name="charuco/numberOfSquaresInY" type="int" value="$(arg number_of_squares_in_y)" />
+		<param name="charuco/dictionaryId" type="int" value="$(arg dictionary_id)" />
+
+		<param name="sensor_frame_override" type="str" value="$(arg sensor_frame_override)" />
+		<param name="charuco_tf_frame" type="str" value="$(arg charuco_tf_frame)" />
+		<param name="image_topic" type="str" value="$(arg image_topic)" />
+		<param name="camera_info_topic" type="str" value="$(arg camera_info_topic)" />
+		<param name="image_analysis_publish_topic" type="str" value="$(arg image_analysis_publish_topic)" />
+		<param name="charuco_pose_publish_topic" type="str" value="$(arg charuco_pose_publish_topic)" />
+
+		<param name="use_dynamic_range" type="bool" value="$(arg use_dynamic_range)" />
+		<param name="use_adaptive_threshold" type="bool" value="$(arg use_adaptive_threshold)" />
+		<param name="use_median_blur" type="bool" value="$(arg use_median_blur)" />
+		<param name="use_bilateral_filter" type="bool" value="$(arg use_bilateral_filter)" />
+	</node>
+
+</launch>
