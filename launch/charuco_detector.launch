@@ -15,8 +15,8 @@
 	<arg name="charuco_tf_frame" default="charuco" />
 	<arg name="image_topic" default="image_raw" />
 	<arg name="camera_info_topic" default="camera_info" />
-	<arg name="image_analysis_publish_topic" default="image_raw_charuco_detection" />
-	<arg name="charuco_pose_publish_topic" default="image_raw_charuco_pose" />
+	<arg name="image_analysis_publish_topic" default="$(arg image_topic)_charuco_detection" />
+	<arg name="charuco_pose_publish_topic" default="$(arg image_topic)_charuco_pose" />
 
 	<arg name="use_dynamic_range" default="false" />
 	<arg name="use_adaptive_threshold" default="false" />
