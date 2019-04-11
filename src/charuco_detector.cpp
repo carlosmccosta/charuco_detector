@@ -118,7 +118,7 @@ namespace charuco_detector {
 
 			if ((_msg->encoding == sensor_msgs::image_encodings::MONO16 || use_dynamic_range_)) {
 				try {
-					image_grayscale = cv_bridge::toCvCopy(_msg)->image;
+					image_grayscale = cv_bridge::toCvCopy(_msg, sensor_msgs::image_encodings::MONO8)->image;
 					if (use_median_blur_) filterImage(image_grayscale);
 					applyDynamicRange(image_grayscale);
 					dynamic_range_applied = true;
