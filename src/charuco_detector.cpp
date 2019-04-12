@@ -113,6 +113,11 @@ namespace charuco_detector {
 
 	void ChArUcoDetector::imageCallback(const sensor_msgs::ImageConstPtr &_msg) {
 		if (camera_info_) {
+			if (_msg->data.empty() || _msg->step == 0) {
+				ROS_WARN("Discarded empty image");
+				return;
+			}
+
 			cv::Mat image_grayscale;
 			bool dynamic_range_applied = false;
 
