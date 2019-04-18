@@ -46,10 +46,11 @@ namespace charuco_detector {
 		virtual void startDetection();
 		void cameraInfoCallback(const sensor_msgs::CameraInfo::ConstPtr &_msg);
 		void imageCallback(const sensor_msgs::ImageConstPtr &_msg);
+		void applyMedianBlur(cv::Mat &image_in_out_);
 		void applyDynamicRange(cv::Mat& image_in_out_);
-		virtual void filterImage(cv::Mat& image_in_out_);
-		virtual void filterImageMono8(cv::Mat& image_in_out_);
-		virtual void applyThreshold(cv::Mat& image_in_out_);
+		void applyBilateralFilter(cv::Mat &image_in_out_);
+		void applyCLAHE(cv::Mat &image_in_out_);
+		void applyAdaptiveThreshold(cv::Mat &image_in_out_);
 		virtual bool detectChArUcoBoard(const cv::Mat &_image_grayscale, const cv::Mat &_camera_intrinsics, const cv::Mat &_camera_distortion_coefficients,
 										cv::Vec3d &_camera_rotation_out, cv::Vec3d &_camera_translation_out,
 										cv::InputOutputArray _image_with_detection_results, bool _show_rejected_markers);
@@ -67,10 +68,28 @@ namespace charuco_detector {
 		int number_of_squares_in_y_;
 		int dictionary_id_;
 
-		bool use_dynamic_range_;
-		bool use_adaptive_threshold_;
 		bool use_median_blur_;
+		int median_blur_k_size_;
+
+		bool use_dynamic_range_;
+
 		bool use_bilateral_filter_;
+		int bilateral_filter_pixel_neighborhood_;
+		double bilateral_filter_sigma_color_;
+		double bilateral_filter_sigma_space_;
+		int bilateral_filter_border_type_;
+
+		bool use_clahe_;
+		double clahe_clip_limit_;
+		int clahe_size_x_;
+		int clahe_size_y_;
+
+		bool use_adaptive_threshold_;
+		double adaptive_threshold_max_value_;
+		int adaptive_threshold_method_;
+		int adaptive_threshold_type_;
+		int adaptive_threshold_block_size_;
+		double adaptive_threshold_constant_offset_from_mean_;
 
 		std::string sensor_frame_override_;
 		std::string charuco_tf_frame_;

@@ -47,10 +47,28 @@ namespace charuco_detector {
 		private_node_handle_->param("charuco/numberOfSquaresInY", number_of_squares_in_y_, 14);
 		private_node_handle_->param("charuco/dictionaryId", dictionary_id_, 10);
 
-		private_node_handle_->param("use_dynamic_range", use_dynamic_range_, false);
-		private_node_handle_->param("use_adaptive_threshold", use_adaptive_threshold_, false);
 		private_node_handle_->param("use_median_blur", use_median_blur_, false);
+		private_node_handle_->param("median_blur_k_size", median_blur_k_size_, 3);
+
+		private_node_handle_->param("use_dynamic_range", use_dynamic_range_, true);
+
 		private_node_handle_->param("use_bilateral_filter", use_bilateral_filter_, false);
+		private_node_handle_->param("bilateral_filter_pixel_neighborhood", bilateral_filter_pixel_neighborhood_, 5);
+		private_node_handle_->param("bilateral_filter_sigma_color", bilateral_filter_sigma_color_, 100.0);
+		private_node_handle_->param("bilateral_filter_sigma_space", bilateral_filter_sigma_space_, 100.0);
+		private_node_handle_->param("bilateral_filter_border_type", bilateral_filter_border_type_, (int)cv::BORDER_DEFAULT);
+
+		private_node_handle_->param("use_clahe", use_clahe_, true);
+		private_node_handle_->param("clahe_clip_limit", clahe_clip_limit_, 4.0);
+		private_node_handle_->param("clahe_size_x", clahe_size_x_, 2);
+		private_node_handle_->param("clahe_size_y", clahe_size_y_, 2);
+
+		private_node_handle_->param("use_adaptive_threshold", use_adaptive_threshold_, false);
+		private_node_handle_->param("adaptive_threshold_max_value", adaptive_threshold_max_value_, 255.0);
+		private_node_handle_->param("adaptive_threshold_method", adaptive_threshold_method_, (int)cv::ADAPTIVE_THRESH_GAUSSIAN_C);
+		private_node_handle_->param("adaptive_threshold_type", adaptive_threshold_type_, (int)cv::THRESH_BINARY);
+		private_node_handle_->param("adaptive_threshold_block_size", adaptive_threshold_block_size_, 65);
+		private_node_handle_->param("adaptive_threshold_constant_offset_from_mean", adaptive_threshold_constant_offset_from_mean_, 0.0);
 
 		private_node_handle_->param("sensor_frame_override", sensor_frame_override_, std::string(""));
 		private_node_handle_->param("charuco_tf_frame", charuco_tf_frame_, std::string("charuco"));
@@ -123,8 +141,8 @@ namespace charuco_detector {
 
 			if ((_msg->encoding == sensor_msgs::image_encodings::MONO16 || use_dynamic_range_)) {
 				try {
-					image_grayscale = cv_bridge::toCvCopy(_msg, sensor_msgs::image_encodings::MONO8)->image;
-					if (use_median_blur_) filterImage(image_grayscale);
+					image_grayscale = cv_bridge::toCvCopy(_msg, sensor_msgs::image_encodings::MONO16)->image;
+					if (use_median_blur_) applyMedianBlur(image_grayscale);
 					applyDynamicRange(image_grayscale);
 					dynamic_range_applied = true;
 				} catch (...) {}
@@ -147,9 +165,10 @@ namespace charuco_detector {
 				}
 			}
 
-			if (!dynamic_range_applied && use_median_blur_) filterImage(image_grayscale);
-			if (use_bilateral_filter_) filterImageMono8(image_grayscale);
-			if (use_adaptive_threshold_) applyThreshold(image_grayscale);
+			if (!dynamic_range_applied && use_median_blur_) applyMedianBlur(image_grayscale);
+			if (use_bilateral_filter_) applyBilateralFilter(image_grayscale);
+			if (use_clahe_) applyCLAHE(image_grayscale);
+			if (use_adaptive_threshold_) applyAdaptiveThreshold(image_grayscale);
 
 			cv::Vec3d camera_rotation, camera_translation;
 			cv::Mat image_results;
@@ -183,33 +202,41 @@ namespace charuco_detector {
 	}
 
 
+	void ChArUcoDetector::applyMedianBlur(cv::Mat &image_in_out_) {
+		cv::Mat temp;
+		cv::medianBlur(image_in_out_, temp, median_blur_k_size_);
+		image_in_out_ = temp;
+	}
+
+
 	void ChArUcoDetector::applyDynamicRange(cv::Mat& image_in_out_) {
 		double min = 0;
 		double max = 65535;
-		cv::Mat temp;
 		cv::minMaxLoc(image_in_out_, &min, &max);
-		cv::Mat(image_in_out_ - min).convertTo(image_in_out_, CV_8UC1, 255 / (max - min));
+		cv::Mat temp = cv::Mat(image_in_out_ - min);
+		temp.convertTo(image_in_out_, CV_8UC1, 255 / (max - min));
 	}
 
 
-	void ChArUcoDetector::filterImage(cv::Mat& image_in_out_) {
+	void ChArUcoDetector::applyBilateralFilter(cv::Mat &image_in_out_) {
 		cv::Mat temp;
-		cv::medianBlur(image_in_out_, temp, 3);
+		cv::bilateralFilter(image_in_out_, temp, bilateral_filter_pixel_neighborhood_, bilateral_filter_sigma_color_, bilateral_filter_sigma_space_, bilateral_filter_border_type_);
 		image_in_out_ = temp;
 	}
 
 
-	void ChArUcoDetector::filterImageMono8(cv::Mat& image_in_out_) {
+	void ChArUcoDetector::applyCLAHE(cv::Mat &image_in_out_) {
+		auto clahe = cv::createCLAHE(clahe_clip_limit_, cv::Size(clahe_size_x_, clahe_size_y_));
 		cv::Mat temp;
-		cv::bilateralFilter(image_in_out_, temp, 5, 100, 100, cv::BORDER_DEFAULT);
+		clahe->apply(image_in_out_, temp);
 		image_in_out_ = temp;
 	}
 
 
-	void ChArUcoDetector::applyThreshold(cv::Mat& image_in_out_) {
-			cv::Mat temp;
-			cv::adaptiveThreshold(image_in_out_, temp, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, 65, 0);
-			image_in_out_ = temp;
+	void ChArUcoDetector::applyAdaptiveThreshold(cv::Mat &image_in_out_) {
+		cv::Mat temp;
+		cv::adaptiveThreshold(image_in_out_, temp, adaptive_threshold_max_value_, adaptive_threshold_method_, adaptive_threshold_type_, adaptive_threshold_block_size_, adaptive_threshold_constant_offset_from_mean_);
+		image_in_out_ = temp;
 	}
 
 
