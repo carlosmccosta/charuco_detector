@@ -190,10 +190,10 @@ namespace charuco_detector {
 				static_transformStamped.transform.rotation = charuco_pose.pose.orientation;
 				static_tf_broadcaster_.sendTransform(static_transformStamped);
 
-				sensor_msgs::ImagePtr image_results_msg = cv_bridge::CvImage(std_msgs::Header(), "rgb8", image_results).toImageMsg();
+				sensor_msgs::ImagePtr image_results_msg = cv_bridge::CvImage(_msg->header, "rgb8", image_results).toImageMsg();
 				image_results_publisher_.publish(image_results_msg);
 			} else {
-				sensor_msgs::ImagePtr image_filtered_msg = cv_bridge::CvImage(std_msgs::Header(), "mono8", image_grayscale).toImageMsg();
+				sensor_msgs::ImagePtr image_filtered_msg = cv_bridge::CvImage(_msg->header, "mono8", image_grayscale).toImageMsg();
 				image_results_publisher_.publish(image_filtered_msg);
 			}
 		} else {
