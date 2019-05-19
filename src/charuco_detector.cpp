@@ -261,7 +261,7 @@ namespace charuco_detector {
 															 _camera_rotation_out, _camera_translation_out);
 
 		if (_image_with_detection_results.needed()) {
-			cv::cvtColor(_image_grayscale, _image_with_detection_results, cv::COLOR_GRAY2BGR);
+			cv::cvtColor(_image_grayscale, _image_with_detection_results, cv::COLOR_GRAY2RGB);
 			if (!_marker_ids.empty()) {
 				cv::aruco::drawDetectedMarkers(_image_with_detection_results, marker_corners);
 			}
