@@ -190,7 +190,7 @@ namespace charuco_detector {
 				static_transformStamped.transform.rotation = charuco_pose.pose.orientation;
 				static_tf_broadcaster_.sendTransform(static_transformStamped);
 
-				sensor_msgs::ImagePtr image_results_msg = cv_bridge::CvImage(_msg->header, "rgb8", image_results).toImageMsg();
+				sensor_msgs::ImagePtr image_results_msg = cv_bridge::CvImage(_msg->header, "bgr8", image_results).toImageMsg();
 				image_results_publisher_.publish(image_results_msg);
 			} else {
 				sensor_msgs::ImagePtr image_filtered_msg = cv_bridge::CvImage(_msg->header, "mono8", image_grayscale).toImageMsg();
@@ -261,7 +261,7 @@ namespace charuco_detector {
 															 _camera_rotation_out, _camera_translation_out);
 
 		if (_image_with_detection_results.needed()) {
-			cv::cvtColor(_image_grayscale, _image_with_detection_results, cv::COLOR_GRAY2RGB);
+			cv::cvtColor(_image_grayscale, _image_with_detection_results, cv::COLOR_GRAY2BGR);
 			if (!_marker_ids.empty()) {
 				cv::aruco::drawDetectedMarkers(_image_with_detection_results, marker_corners);
 			}
