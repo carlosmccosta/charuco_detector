@@ -28,7 +28,7 @@ namespace charuco_detector {
 		private_node_handle_->param("charuco/minCornerDistanceRate", detector_parameters_->minCornerDistanceRate, 0.05);
 		private_node_handle_->param("charuco/minDistanceToBorder", detector_parameters_->minDistanceToBorder, 3);
 		private_node_handle_->param("charuco/minMarkerDistanceRate", detector_parameters_->minMarkerDistanceRate, 0.05);
-		private_node_handle_->param("charuco/cornerRefinementMethod", detector_parameters_->cornerRefinementMethod, 0);
+		//private_node_handle_->param("charuco/cornerRefinementMethod", detector_parameters_->cornerRefinementMethod, 0);
 		private_node_handle_->param("charuco/cornerRefinementWinSize", detector_parameters_->cornerRefinementWinSize, 5);
 		private_node_handle_->param("charuco/cornerRefinementMaxIterations", detector_parameters_->cornerRefinementMaxIterations, 30);
 		private_node_handle_->param("charuco/cornerRefinementMinAccuracy", detector_parameters_->cornerRefinementMinAccuracy, 0.1);
