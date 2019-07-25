@@ -1,6 +1,12 @@
 https://docs.opencv.org/master/df/d4a/tutorial_charuco_detection.html
+https://github.com/opencv/opencv_contrib/blob/master/modules/aruco/samples/create_board_charuco.cpp
 
-cd D:\Git\OpenCV\opencv\build\install\samples\aruco\
+Parameters:
+-w: Number of squares in X direction
+-h: Number of squares in Y direction
+-sl: Square side length
+-ml: Marker side length
+-d: dictionary
 
 A4 5x7 (200x280 mm)
 aruco-example-create_board_charuco.exe chboard-a4.png -w=5 -h=7 -sl=200 -ml=120 -d=10
@@ -13,7 +19,6 @@ aruco-example-detect_board_charuco.exe -w=7 -h=10 -sl=0.04 -ml=0.024 -d=10
 A3 10x14 (280x392 mm)
 aruco-example-create_board_charuco.exe chboard-a3.png -w=10 -h=14 -sl=200 -ml=120 -d=10
 aruco-example-detect_board_charuco.exe -w=10 -h=14 -sl=0.028 -ml=0.0168 -d=10
-
 
 A3 margin:
 	Left: 0.2
