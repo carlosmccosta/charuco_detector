@@ -3,10 +3,10 @@
 	<!-- Change the following parameters according to the pattern in usage -->
 	<arg name="squares_sides_size_in_meters" default="0.0280" />
 	<arg name="markers_sides_size_in_meters" default="0.0168" />
-	<arg name="number_of_bits_for_markers_sides" default="6" />
 	<arg name="number_of_squares_in_x" default="10" />
 	<arg name="number_of_squares_in_y" default="14" />
 	<arg name="number_of_markers" default="70" />
+	<arg name="number_of_bits_for_markers_sides" default="6" />
 	<arg name="dictionary_id" default="10" />
 
 	<!-- Change the following 2 topics to match the ones published by your camera sensor -->
@@ -50,15 +50,23 @@
 	<arg name="adaptive_threshold_constant_offset_from_mean" default="0.0" />
 
 	<node pkg="charuco_detector" type="charuco_detector_node" name="$(anon charuco_detector)" clear_params="true" output="screen">
-		<rosparam command="load" file="$(arg config_file)" ns="charuco" subst_value="true" />
-
 		<param name="charuco/squaresSidesSizeM" type="double" value="$(arg squares_sides_size_in_meters)" />
 		<param name="charuco/markersSidesSizeM" type="double" value="$(arg markers_sides_size_in_meters)" />
-		<param name="charuco/numberOfBitsForMarkersSides" type="int" value="$(arg number_of_bits_for_markers_sides)" />
-		<param name="charuco/numberOfMarkers" type="int" value="$(arg number_of_markers)" />
 		<param name="charuco/numberOfSquaresInX" type="int" value="$(arg number_of_squares_in_x)" />
 		<param name="charuco/numberOfSquaresInY" type="int" value="$(arg number_of_squares_in_y)" />
+		<param name="charuco/numberOfMarkers" type="int" value="$(arg number_of_markers)" />
+		<param name="charuco/numberOfBitsForMarkersSides" type="int" value="$(arg number_of_bits_for_markers_sides)" />
 		<param name="charuco/dictionaryId" type="int" value="$(arg dictionary_id)" />
+
+		<param name="image_topic" type="str" value="$(arg image_topic)" />
+		<param name="camera_info_topic" type="str" value="$(arg camera_info_topic)" />
+		<param name="image_analysis_publish_topic" type="str" value="$(arg image_analysis_publish_topic)" />
+		<param name="charuco_pose_publish_topic" type="str" value="$(arg charuco_pose_publish_topic)" />
+
+		<param name="charuco_tf_frame" type="str" value="$(arg charuco_tf_frame)" />
+		<param name="sensor_frame_override" type="str" value="$(arg sensor_frame_override)" />
+
+		<rosparam command="load" file="$(arg config_file)" ns="charuco" subst_value="true" />
 
 		<param name="use_median_blur" type="bool" value="$(arg use_median_blur)" />
 		<param name="median_blur_k_size" type="int" value="$(arg median_blur_k_size)" />
@@ -82,14 +90,5 @@
 		<param name="adaptive_threshold_type" type="int" value="$(arg adaptive_threshold_type)" />
 		<param name="adaptive_threshold_block_size" type="int" value="$(arg adaptive_threshold_block_size)" />
 		<param name="adaptive_threshold_constant_offset_from_mean" type="double" value="$(arg adaptive_threshold_constant_offset_from_mean)" />
-
-
-		<param name="sensor_frame_override" type="str" value="$(arg sensor_frame_override)" />
-		<param name="charuco_tf_frame" type="str" value="$(arg charuco_tf_frame)" />
-		<param name="image_topic" type="str" value="$(arg image_topic)" />
-		<param name="camera_info_topic" type="str" value="$(arg camera_info_topic)" />
-		<param name="image_analysis_publish_topic" type="str" value="$(arg image_analysis_publish_topic)" />
-		<param name="charuco_pose_publish_topic" type="str" value="$(arg charuco_pose_publish_topic)" />
 	</node>
-
 </launch>
