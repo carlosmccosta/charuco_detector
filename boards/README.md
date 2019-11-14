@@ -2,10 +2,36 @@
 
 Folder with [ChArUco](https://docs.opencv.org/master/df/d4a/tutorial_charuco_detection.html) patterns from A0 to A4.
 
+You can generate more patterns [online](https://calib.io/pages/camera-calibration-pattern-generator), with [this generator](https://github.com/opencv/opencv_contrib/tree/master/modules/aruco/misc/pattern_generator) or using ROS / OpenCV below.
+
 
 ## ROS
 
-Each pattern has a launch file for generating a high resolution .png that can then be converted to a real size .pdf using gimp:
+Each pattern has a launch file for generating a high resolution .png that can then be converted to a real size .pdf using:
+
+[InkScape](https://inkscape.org):
+- Open InkScape
+- File -> Open
+  - Image import type: Embed
+  - Image DPI: From file
+  - Image rendering mode: Blocky
+- Select all (Ctrl + A)
+- Object -> Transform
+  - Scale
+    - Scale proportionally
+    - Input the width according to the pattern
+    - Click apply
+- File -> Document properties
+  -> Adjust page size according to the pattern
+- Select all (Ctrl + A)
+- Object -> Align
+  - Relative to: Page
+  - Align to center vertically and horizontally
+- File -> Save as
+  - File type: pdf
+  - Output page size: Use document's page size
+
+[Gimp](https://www.gimp.org):
 - Open .png
 - Image -> Auto crop
 - File -> Print
