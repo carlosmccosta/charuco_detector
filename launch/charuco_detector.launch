@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
 	<!-- Change the following parameters according to the pattern in usage -->
-	<arg name="squares_sides_size_in_meters" default="0.0280" />
-	<arg name="markers_sides_size_in_meters" default="0.0168" />
+	<arg name="squares_sides_size_in_meters" default="0.028" />
+	<arg name="markers_sides_size_in_meters" default="0.021" />
 	<arg name="number_of_squares_in_x" default="10" />
 	<arg name="number_of_squares_in_y" default="14" />
 	<arg name="number_of_markers" default="70" />
-	<arg name="number_of_bits_for_markers_sides" default="6" />
-	<arg name="dictionary_id" default="10" />
+	<arg name="number_of_bits_for_markers_sides" default="4" />
+	<arg name="dictionary_id" default="3" />
 
 	<!-- Change the following 2 topics to match the ones published by your camera sensor -->
 	<arg name="image_topic" default="image_raw" />
