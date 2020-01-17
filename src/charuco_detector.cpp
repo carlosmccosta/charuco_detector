@@ -70,6 +70,8 @@ namespace charuco_detector {
 		private_node_handle_->param("adaptive_threshold_block_size", adaptive_threshold_block_size_, 65);
 		private_node_handle_->param("adaptive_threshold_constant_offset_from_mean", adaptive_threshold_constant_offset_from_mean_, 0.0);
 
+		private_node_handle_->param("use_static_tf_broadcaster", use_static_tf_broadcaster_, false);
+
 		private_node_handle_->param("sensor_frame_override", sensor_frame_override_, std::string(""));
 		private_node_handle_->param("charuco_tf_frame", charuco_tf_frame_, std::string("charuco"));
 		private_node_handle_->param("image_topic", image_topic_, std::string("image_raw"));
@@ -188,7 +190,11 @@ namespace charuco_detector {
 				static_transformStamped.transform.translation.y = charuco_pose.pose.position.y;
 				static_transformStamped.transform.translation.z = charuco_pose.pose.position.z;
 				static_transformStamped.transform.rotation = charuco_pose.pose.orientation;
-				static_tf_broadcaster_.sendTransform(static_transformStamped);
+
+				if (use_static_tf_broadcaster_)
+					static_tf_broadcaster_.sendTransform(static_transformStamped);
+				else
+					tf_broadcaster_.sendTransform(static_transformStamped);
 
 				sensor_msgs::ImagePtr image_results_msg = cv_bridge::CvImage(_msg->header, "bgr8", image_results).toImageMsg();
 				image_results_publisher_.publish(image_results_msg);

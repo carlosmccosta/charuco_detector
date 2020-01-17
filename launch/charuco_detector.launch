@@ -49,6 +49,8 @@
 	<arg name="adaptive_threshold_block_size" default="65" />
 	<arg name="adaptive_threshold_constant_offset_from_mean" default="0.0" />
 
+	<arg name="use_static_tf_broadcaster" default="false" />
+
 	<node pkg="charuco_detector" type="charuco_detector_node" name="$(anon charuco_detector)" clear_params="true" output="screen">
 		<param name="charuco/squaresSidesSizeM" type="double" value="$(arg squares_sides_size_in_meters)" />
 		<param name="charuco/markersSidesSizeM" type="double" value="$(arg markers_sides_size_in_meters)" />
@@ -90,5 +92,7 @@
 		<param name="adaptive_threshold_type" type="int" value="$(arg adaptive_threshold_type)" />
 		<param name="adaptive_threshold_block_size" type="int" value="$(arg adaptive_threshold_block_size)" />
 		<param name="adaptive_threshold_constant_offset_from_mean" type="double" value="$(arg adaptive_threshold_constant_offset_from_mean)" />
+
+		<param name="use_static_tf_broadcaster" type="bool" value="$(arg use_static_tf_broadcaster)" />
 	</node>
 </launch>

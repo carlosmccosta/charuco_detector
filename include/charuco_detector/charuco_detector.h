@@ -32,6 +32,7 @@
 #include <sensor_msgs/image_encodings.h>
 #include <image_transport/image_transport.h>
 #include <tf2_ros/static_transform_broadcaster.h>
+#include <tf2_ros/transform_broadcaster.h>
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </includes>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -91,6 +92,8 @@ namespace charuco_detector {
 		int adaptive_threshold_block_size_;
 		double adaptive_threshold_constant_offset_from_mean_;
 
+		bool use_static_tf_broadcaster_;
+
 		std::string sensor_frame_override_;
 		std::string charuco_tf_frame_;
 		std::string image_topic_;
@@ -110,6 +113,7 @@ namespace charuco_detector {
 		ros::Subscriber camera_info_subscriber_;
 		ros::Publisher charuco_pose_publisher_;
 		tf2_ros::StaticTransformBroadcaster static_tf_broadcaster_;
+		tf2_ros::TransformBroadcaster tf_broadcaster_;
 	};
 
 }
