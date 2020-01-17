@@ -24,8 +24,6 @@ int main(int argc, char **argv) {
 	chArUcoDetector.setupConfigurationFromParameterServer(node_handle, private_node_handle);
 	chArUcoDetector.startDetection();
 
-	ros::spin();
-
 	return 0;
 }
 // ###################################################################################   </main>   #############################################################################

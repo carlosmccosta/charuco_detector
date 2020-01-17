@@ -50,6 +50,7 @@
 	<arg name="adaptive_threshold_constant_offset_from_mean" default="0.0" />
 
 	<arg name="use_static_tf_broadcaster" default="false" />
+	<arg name="tf_broadcaster_republish_rate" default="10.0" /> <!-- only used if > 0 -->
 
 	<node pkg="charuco_detector" type="charuco_detector_node" name="$(anon charuco_detector)" clear_params="true" output="screen">
 		<param name="charuco/squaresSidesSizeM" type="double" value="$(arg squares_sides_size_in_meters)" />
@@ -94,5 +95,6 @@
 		<param name="adaptive_threshold_constant_offset_from_mean" type="double" value="$(arg adaptive_threshold_constant_offset_from_mean)" />
 
 		<param name="use_static_tf_broadcaster" type="bool" value="$(arg use_static_tf_broadcaster)" />
+		<param name="tf_broadcaster_republish_rate" type="double" value="$(arg tf_broadcaster_republish_rate)" />
 	</node>
 </launch>

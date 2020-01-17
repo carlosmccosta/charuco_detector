@@ -93,6 +93,7 @@ namespace charuco_detector {
 		double adaptive_threshold_constant_offset_from_mean_;
 
 		bool use_static_tf_broadcaster_;
+		double tf_broadcaster_republish_rate_;
 
 		std::string sensor_frame_override_;
 		std::string charuco_tf_frame_;
@@ -114,6 +115,8 @@ namespace charuco_detector {
 		ros::Publisher charuco_pose_publisher_;
 		tf2_ros::StaticTransformBroadcaster static_tf_broadcaster_;
 		tf2_ros::TransformBroadcaster tf_broadcaster_;
+		geometry_msgs::TransformStamped transform_stamped_;
+		bool transform_stamped_valid_;
 	};
 
 }

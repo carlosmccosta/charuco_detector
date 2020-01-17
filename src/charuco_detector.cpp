@@ -71,6 +71,8 @@ namespace charuco_detector {
 		private_node_handle_->param("adaptive_threshold_constant_offset_from_mean", adaptive_threshold_constant_offset_from_mean_, 0.0);
 
 		private_node_handle_->param("use_static_tf_broadcaster", use_static_tf_broadcaster_, false);
+		private_node_handle_->param("tf_broadcaster_republish_rate", tf_broadcaster_republish_rate_, 10.0);
+		transform_stamped_valid_ = false;
 
 		private_node_handle_->param("sensor_frame_override", sensor_frame_override_, std::string(""));
 		private_node_handle_->param("charuco_tf_frame", charuco_tf_frame_, std::string("charuco"));
@@ -99,6 +101,19 @@ namespace charuco_detector {
 		image_results_publisher_ = image_transport_results_ptr_->advertise(image_results_publish_topic_, 1, true);
 
 		charuco_pose_publisher_ = node_handle_->advertise<geometry_msgs::PoseStamped>(charuco_pose_publish_topic_, 1, true);
+
+		if (tf_broadcaster_republish_rate_ > 0.0 && !use_static_tf_broadcaster_) {
+			ros::Rate tf_broadcaster_republish_rate(tf_broadcaster_republish_rate_);
+			while (ros::ok()) {
+				if (transform_stamped_valid_) {
+					tf_broadcaster_.sendTransform(transform_stamped_);
+				}
+				ros::spinOnce();
+				tf_broadcaster_republish_rate.sleep();
+			}
+		} else {
+			ros::spin();
+		}
 	}
 
 
@@ -181,20 +196,20 @@ namespace charuco_detector {
 				fillPose(camera_rotation, camera_translation, charuco_pose);
 				charuco_pose_publisher_.publish(charuco_pose);
 
-				geometry_msgs::TransformStamped static_transformStamped;
-				static_transformStamped.header = _msg->header;
+				transform_stamped_.header = _msg->header;
 				if (!sensor_frame_override_.empty())
-					static_transformStamped.header.frame_id = sensor_frame_override_;
-				static_transformStamped.child_frame_id = charuco_tf_frame_;
-				static_transformStamped.transform.translation.x = charuco_pose.pose.position.x;
-				static_transformStamped.transform.translation.y = charuco_pose.pose.position.y;
-				static_transformStamped.transform.translation.z = charuco_pose.pose.position.z;
-				static_transformStamped.transform.rotation = charuco_pose.pose.orientation;
+					transform_stamped_.header.frame_id = sensor_frame_override_;
+				transform_stamped_.child_frame_id = charuco_tf_frame_;
+				transform_stamped_.transform.translation.x = charuco_pose.pose.position.x;
+				transform_stamped_.transform.translation.y = charuco_pose.pose.position.y;
+				transform_stamped_.transform.translation.z = charuco_pose.pose.position.z;
+				transform_stamped_.transform.rotation = charuco_pose.pose.orientation;
+				transform_stamped_valid_ = true;
 
 				if (use_static_tf_broadcaster_)
-					static_tf_broadcaster_.sendTransform(static_transformStamped);
+					static_tf_broadcaster_.sendTransform(transform_stamped_);
 				else
-					tf_broadcaster_.sendTransform(static_transformStamped);
+					tf_broadcaster_.sendTransform(transform_stamped_);
 
 				sensor_msgs::ImagePtr image_results_msg = cv_bridge::CvImage(_msg->header, "bgr8", image_results).toImageMsg();
 				image_results_publisher_.publish(image_results_msg);
