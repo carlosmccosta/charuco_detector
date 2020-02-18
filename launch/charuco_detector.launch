@@ -49,7 +49,7 @@
 	<arg name="adaptive_threshold_block_size" default="65" />
 	<arg name="adaptive_threshold_constant_offset_from_mean" default="0.0" />
 
-	<arg name="use_static_tf_broadcaster" default="false" />
+	<arg name="use_static_tf_broadcaster" default="true" />
 	<arg name="tf_broadcaster_republish_rate" default="10.0" /> <!-- only used if > 0 -->
 
 	<node pkg="charuco_detector" type="charuco_detector_node" name="$(anon charuco_detector)" clear_params="true" output="screen">
