@@ -38,7 +38,7 @@
 	<arg name="bilateral_filter_border_type" default="4" /> <!-- cv::BORDER_DEFAULT -->
 
 	<arg name="use_clahe" default="true" />
-	<arg name="clahe_clip_limit" default="4.0" />
+	<arg name="clahe_clip_limit" default="1.0" />
 	<arg name="clahe_size_x" default="2" />
 	<arg name="clahe_size_y" default="2" />
 
