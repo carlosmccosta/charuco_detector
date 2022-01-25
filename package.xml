@@ -13,7 +13,7 @@
 	<depend>eigen</depend>
 	<depend>geometry_msgs</depend>
 	<depend>image_transport</depend>
-	<depend>opencv3</depend>
+	<depend>libopencv-dev</depend>
 	<depend>rosconsole</depend>
 	<depend>roscpp</depend>
 	<depend>rostime</depend>
