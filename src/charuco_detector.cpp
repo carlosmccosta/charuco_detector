@@ -18,6 +18,8 @@ namespace charuco_detector {
 
 		detector_parameters_ = cv::aruco::DetectorParameters::create();
 
+		private_node_handle_->param("tf_direction_invert", tf_direction_invert_, false);
+
 		private_node_handle_->param("charuco/adaptiveThreshWinSizeMin", detector_parameters_->adaptiveThreshWinSizeMin, 3);
 		private_node_handle_->param("charuco/adaptiveThreshWinSizeMax", detector_parameters_->adaptiveThreshWinSizeMax, 23);
 		private_node_handle_->param("charuco/adaptiveThreshWinSizeStep", detector_parameters_->adaptiveThreshWinSizeStep, 10);
@@ -194,17 +196,40 @@ namespace charuco_detector {
 				geometry_msgs::PoseStamped charuco_pose;
 				charuco_pose.header = _msg->header;
 				fillPose(camera_rotation, camera_translation, charuco_pose);
-				charuco_pose_publisher_.publish(charuco_pose);
 
 				transform_stamped_.header = _msg->header;
-				if (!sensor_frame_override_.empty())
-					transform_stamped_.header.frame_id = sensor_frame_override_;
-				transform_stamped_.child_frame_id = charuco_tf_frame_;
+
 				transform_stamped_.transform.translation.x = charuco_pose.pose.position.x;
 				transform_stamped_.transform.translation.y = charuco_pose.pose.position.y;
 				transform_stamped_.transform.translation.z = charuco_pose.pose.position.z;
 				transform_stamped_.transform.rotation = charuco_pose.pose.orientation;
-				transform_stamped_valid_ = true;
+				
+				if (!tf_direction_invert_) 
+				{
+					if (!sensor_frame_override_.empty())
+						transform_stamped_.header.frame_id = sensor_frame_override_;
+					transform_stamped_.child_frame_id = charuco_tf_frame_;
+					transform_stamped_valid_ = true;
+				} else {
+					// Invert the transform so that tf goes board -> camera
+					if (!sensor_frame_override_.empty())
+						transform_stamped_.child_frame_id = sensor_frame_override_;
+					transform_stamped_.header.frame_id = charuco_tf_frame_;
+
+					tf2::fromMsg(transform_stamped_.transform, transform);
+					transform = transform.inverse();
+					tf2::toMsg(transform,inverted_pose_);
+
+					transform_stamped_.transform.translation.x = inverted_pose_.position.x;
+					transform_stamped_.transform.translation.y = inverted_pose_.position.y;
+					transform_stamped_.transform.translation.z = inverted_pose_.position.z;
+					transform_stamped_.transform.rotation = inverted_pose_.orientation;
+
+					transform_stamped_valid_ = true;
+					charuco_pose.pose = inverted_pose_;
+				}
+
+				charuco_pose_publisher_.publish(charuco_pose);
 
 				if (use_static_tf_broadcaster_)
 					static_tf_broadcaster_.sendTransform(transform_stamped_);

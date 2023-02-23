@@ -15,6 +15,9 @@
 	<arg name="image_analysis_publish_topic" default="$(arg image_topic)_charuco_detection" />
 	<arg name="charuco_pose_publish_topic" default="$(arg image_topic)_charuco_pose" />
 
+	<!-- Invert the tf to make the board the parent and camera the child-->
+	<arg name="tf_direction_invert" default="false" />
+
 	<!-- Change the charuco TF frame if you need poses to be estimated from several charuco boards -->
 	<arg name="charuco_tf_frame" default="charuco" />
 
@@ -65,6 +68,8 @@
 		<param name="camera_info_topic" type="str" value="$(arg camera_info_topic)" />
 		<param name="image_analysis_publish_topic" type="str" value="$(arg image_analysis_publish_topic)" />
 		<param name="charuco_pose_publish_topic" type="str" value="$(arg charuco_pose_publish_topic)" />
+
+		<param name="tf_direction_invert" type="bool" value="$(arg tf_direction_invert)" />
 
 		<param name="charuco_tf_frame" type="str" value="$(arg charuco_tf_frame)" />
 		<param name="sensor_frame_override" type="str" value="$(arg sensor_frame_override)" />
