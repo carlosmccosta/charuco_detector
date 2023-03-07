@@ -213,7 +213,11 @@ namespace charuco_detector {
 				} else {
 					// Invert the transform so that tf goes board -> camera
 					if (!sensor_frame_override_.empty())
+					{
 						transform_stamped_.child_frame_id = sensor_frame_override_;
+					} else {
+						transform_stamped_.child_frame_id = _msg->header.frame_id;
+					}
 					transform_stamped_.header.frame_id = charuco_tf_frame_;
 
 					tf2::fromMsg(transform_stamped_.transform, transform);
