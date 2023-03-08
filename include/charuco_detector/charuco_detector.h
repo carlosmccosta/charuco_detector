@@ -33,6 +33,7 @@
 #include <image_transport/image_transport.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 #include <tf2_ros/transform_broadcaster.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   </includes>  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
@@ -68,6 +69,8 @@ namespace charuco_detector {
 		int number_of_squares_in_x_;
 		int number_of_squares_in_y_;
 		int dictionary_id_;
+
+		bool tf_direction_invert_;
 
 		bool use_median_blur_;
 		int median_blur_k_size_;
@@ -117,6 +120,9 @@ namespace charuco_detector {
 		tf2_ros::TransformBroadcaster tf_broadcaster_;
 		geometry_msgs::TransformStamped transform_stamped_;
 		bool transform_stamped_valid_;
+		tf2::Transform transform;
+		tf2::Stamped<tf2::Transform> stamped_transform;
+		geometry_msgs::Pose inverted_pose_;
 	};
 
 }
